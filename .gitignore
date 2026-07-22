@@ -1,0 +1,19 @@
+# build artifacts
+build/
+*.o
+*.a
+*.so
+*.exe
+
+# generated benchmark / parity / e2e data (large; not tracked)
+**/outputs/
+**/*_dump/
+**/multi16_*/
+**/cpu_diag/
+**/work/
+*.f32
+*.obj
+
+# editor/OS cruft
+.DS_Store
+*.swp
