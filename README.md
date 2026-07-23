@@ -51,6 +51,21 @@ Use it as a drop-in via `clean-side/adapter/` — the `MLS_project_verts` symbol
 `common/mls_project.o`, and ScrollFiesta's own caller loop supplies the 5-pass (extract) / 20-pass
 (resplit) moving-support LOP semantics. A standalone LOP helper is provided for benchmarking.
 
+### Integration note — Clipper2 ABI
+
+ScrollFiesta's own build (both its `CMakeLists.txt` and its hand-written `src/Makefile`) links
+**both** `Clipper2` (non-USINGZ, 16-byte `Point64`) and `Clipper2Z` (USINGZ, 24-byte). Its C++
+wrappers (`clipper2_wrap.cpp`, `multicut_wrap.cpp`) compile with a single `USINGZ` state, and both
+Clipper variants export `AddPaths_` with the same mangled name — so the linker (ODR) can bind
+`Clipper2_union` to a mismatched-layout `AddPaths_`. It then strides the point buffer with the wrong
+`Point64` size and overruns the vertex allocation: an ASan-confirmed heap-buffer-overflow on every
+union call, which in a normal build can silently corrupt geometry rather than crash.
+
+When you build ScrollFiesta with this backend, **link only the Clipper variant matching how the
+wrappers are compiled**: the `src/Makefile` path (no `-DUSINGZ`, 16-byte) links only `-lClipper2`;
+the CMake path (`CLIPPER2_USINGZ`, 24-byte) links only `Clipper2Z`. Fixed upstream in
+[Hob3rMallow/scrollfiesta_public#5](https://github.com/Hob3rMallow/scrollfiesta_public/pull/5).
+
 ## Attribution & license
 
 This port is **MIT-licensed** ([`LICENSE`](LICENSE)). It ports the *algorithm and ABI* of
