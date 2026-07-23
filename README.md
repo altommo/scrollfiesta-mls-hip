@@ -8,6 +8,11 @@ The MLS kernel here is an original implementation written from a functional spec
 translation of upstream's CUDA source (see [`CLEAN_ROOM_MANIFEST.md`](CLEAN_ROOM_MANIFEST.md)). It
 exposes the same `MLS_project_verts` C ABI as upstream, so it drops in via the included adapter.
 
+> **Related — portable variant:** [`scrollfiesta-mls-cubecl`](https://github.com/altommo/scrollfiesta-mls-cubecl)
+> is a Rust/CubeCL reimplementation of the same kernel that targets AMD, NVIDIA, and WGPU from one
+> source. It's validated for parity against this HIP port (its reference), and runs ~6–7% slower on
+> AMD — so this native-HIP backend stays the fast drop-in, and CubeCL is the cross-vendor option.
+
 ## Results (RX 9070 / gfx1201, ROCm 7.2.4)
 
 | Measurement | Result |
